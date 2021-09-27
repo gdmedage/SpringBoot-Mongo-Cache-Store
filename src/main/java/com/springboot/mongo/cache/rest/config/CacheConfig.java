@@ -23,7 +23,7 @@ public class CacheConfig extends CachingConfigurerSupport {
 	public CacheManager cacheManager() {
 		// Create a "cacheName" cache that will use the collection "collectionName" with a TTL 7 days.
 		MongoCacheBuilder cache = MongoCacheBuilder.newInstance("user", mongoTemplate, "users");
-		cache.withTTL(604800);
+		cache.withTTL(300);
 		Collection<MongoCacheBuilder> caches = new ArrayList<>();
 		caches.add(cache);
 

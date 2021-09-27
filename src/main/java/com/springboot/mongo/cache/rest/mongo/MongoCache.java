@@ -1,7 +1,6 @@
 package com.springboot.mongo.cache.rest.mongo;
 
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.springboot.mongo.cache.rest.model.CacheDocument;
@@ -23,6 +22,7 @@ import org.springframework.util.Assert;
 
 import java.io.*;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -311,20 +311,25 @@ public class MongoCache implements Cache {
     private void updateExpireIndex(Index newExpireIndex) {
         final IndexOperations indexOperations = mongoTemplate.indexOps(collectionName);
         final MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
-		/*
-		 * final List<DBObject> indexes = collection.getIndexInfo();
-		 * 
-		 * final Optional<DBObject> expireOptional = indexes.stream() .filter(index ->
-		 * INDEX_NAME.equals(index.get("name"))) .findFirst();
-		 * 
-		 * if (expireOptional.isPresent()) { final DBObject expire =
-		 * expireOptional.get(); final long ttl = (long)
-		 * expire.get("expireAfterSeconds");
-		 * 
-		 * if (ttl != this.ttl) { indexOperations.dropIndex(INDEX_NAME); } }
-		 * 
-		 * indexOperations.ensureIndex(newExpireIndex);
-		 */
+		
+        Iterable<Document> iterDoc = collection.find();
+        Iterator it = iterDoc.iterator();
+        DBObject indexes = null;
+        while (it.hasNext()) {
+        	indexes = (DBObject) it.next();
+        	if(INDEX_NAME.equals(indexes.get("name"))) {
+        		break;
+        	}
+           System.out.println(indexes);
+        }
+			 
+		 if (indexes != null) { 
+			 final long ttl1 = (long) indexes.get("expireAfterSeconds");
+		 
+		 if (ttl1 != this.ttl) { indexOperations.dropIndex(INDEX_NAME); } }
+		 
+		 indexOperations.ensureIndex(newExpireIndex);
+		 
     }
 
 }
